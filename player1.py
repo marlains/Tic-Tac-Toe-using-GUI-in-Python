@@ -1,0 +1,223 @@
+import socket
+from gameboard import BoardClass
+import tkinter as tk
+import tkinter.font as font
+from tkinter import messagebox
+
+#THIS IS THE CLIENT/HUMAN
+class PlayerOne:
+    
+    """A simple class to store and handle information about PlayerOne."""
+    
+    def __init__(self):
+        """Make PlayerOne.
+
+        Args:
+        boardclass (str): Object of BoardClass
+        """
+      
+        #intializing my gameboard class variable
+        self.playerOneBoard = BoardClass(games = 1, wins = 0, ties = 0, losses = 0)
+
+        #empty list
+        self.buttonList = []
+
+        #call my method to create my canvas and add my widgets
+        self.canvasSetup()
+        self.initTKVariables()
+        self.setHost()
+        self.setPort()
+        self.createUserName()
+        self.playerTurn()
+        self.createBoardButtons()
+        self.createSubmitButton()
+        self.runUI()
+
+    def connectsocket(self):
+        """create socket object for my client, connect my host and port number together,
+        and send the first message across the socket."""
+        
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clientSocket.connect((self.host.get(), int(self.port.get())))
+        self.clientSocket.send(str(self.user_one.get()).encode())
+        self.user_two = self.clientSocket.recv(1024).decode()
+        self.turnLabel.configure(text="Your turn, make a move.")
+        self.master.update()
+
+    def initTKVariables(self):
+        """A method that initializes the tk variables."""
+
+        #set the host of Player 1
+        self.host = tk.StringVar()
+        #set the port of Player 1
+        self.port = tk.StringVar()
+        #set Player 1 user name
+        self.user_one = tk.StringVar()
+
+    def canvasSetup(self):
+        """A method that sets up and initilizes the class canvas."""
+        
+        self.master  = tk.Tk()
+        #sets the window title
+        self.master.title("Tic Tac Toe - Player 1")
+        #sets the default size of the window
+        self.master.geometry('390x530')
+        #set the background color of the window
+        self.master.configure(background='white')
+        #setting the x(horizontal) and y (vertical) to not be resizable.
+        self.master.resizable(0,0) 
+
+    def createUserName(self):
+        """A method that creates a label and entry field for the PlayerOne user."""
+        
+        self.userNameLabel = tk.Label(self.master, text = "Username:").grid(row = 0, column = 0, sticky = 'W', pady = 2)
+        self.userNameEntry = tk.Entry(self.master, textvariable=self.user_one)
+        self.userNameEntry.grid(column=1, columnspan=2,row=0)
+
+    def setHost(self):
+        """ Set the host of Player 1."""
+        
+        self.hostLabel = tk.Label(self.master, text = "Host:").grid(row = 1, column = 0, sticky = 'W', pady = 2)
+        self.hostEntry = tk.Entry(self.master, textvariable=self.host).grid(column=1, columnspan=2,row=1)
+
+    def setPort(self):
+        """ Set the port of Player 1."""
+        
+        self.portLabel = tk.Label(self.master, text = "Port:").grid(row = 2, column = 0, sticky = 'W', pady = 2)
+        self.hostEntry = tk.Entry(self.master, textvariable=self.port).grid(column=1, columnspan=2,row=2)
+
+    def createSubmitButton(self):
+        """A method that creates a submit button, which is used after PlayerOne has entered their username, host, and port.
+            Before this button is pressed, the board buttons are diabled. After it's pressed, the board buttons are enabled.
+        """
+        
+        self.sumbission = tk.Button(self.master,text="Submit",command=self.submitButton).grid(row=4,column=2)
+
+    def submitButton(self):
+        """Connect my players (which also puts my buttons on the window)."""
+
+        #self.host = self.host.get()
+        #self.port = self.port.get()
+        #self.user_one = self.user_one.get()
+        self.connectsocket()
+
+    def playerTurn(self):
+        """Creating a label that will display who's turn it is."""
+        
+        self.turnLabel = tk.Label(self.master, text = "Waiting to connect.")
+        self.turnLabel.grid(row = 5, column = 0, columnspan = 3)
+
+    def createBoardButtons(self):
+        """Nine buttons for each square of the Tic Tac Toe board."""
+
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(7,0)))
+        self.buttonList[0].grid(row=7,column=0)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(7,1)))
+        self.buttonList[1].grid(row=7,column=1)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(7,2)))
+        self.buttonList[2].grid(row=7,column=2)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(8,0)))
+        self.buttonList[3].grid(row=8,column=0)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(8,1)))
+        self.buttonList[4].grid(row=8,column=1)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(8,2)))
+        self.buttonList[5].grid(row=8,column=2)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(9,0)))
+        self.buttonList[6].grid(row=9,column=0)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(9,1)))
+        self.buttonList[7].grid(row=9,column=1)
+        self.buttonList.append(tk.Button(self.master,text="",height=4,width=8,bg="black",font="Times 19 bold",state='normal',command=lambda: self.buttonClick(9,2)))
+        self.buttonList[8].grid(row=9,column=2)
+
+    def buttonIndex(self, button_tuple):
+        self.button_dict = {(0, 0): self.buttonList[0], (0, 1): self.buttonList[1], (0, 2): self.buttonList[2],
+                            (1, 0): self.buttonList[3], (1, 1): self.buttonList[4], (1, 2): self.buttonList[5],
+                            (2, 0): self.buttonList[6], (2, 1): self.buttonList[7], (2, 2): self.buttonList[8]}
+        return self.button_dict[button_tuple]
+      
+    def buttonClick(self, row, col):
+        """Handles the command for self.button1 of the Tic Tac Toe board.
+            When a button is clicked, 'X' is written and the button is connected to self.board in Boardclass()."""
+
+        button_index = (f'{row-7}{col}')
+        #update game baord
+        self.playerOneBoard.updateGameBoard(button_index, 'X')
+        #finding button
+        button_tuple = (int(button_index[0]), int(button_index[1]))
+        position = self.buttonIndex(button_tuple)
+        #position = self.button_dict[button_tuple]
+        #insert 'X' on Tic Tac Toe board and diable button
+        position.configure(text="X", state="disabled")
+        self.master.update()
+        #send move.
+        self.clientSocket.send(button_index.encode())
+        #check if there's a winner or if board is full
+        if self.playerOneBoard.isWinner() or self.playerOneBoard.boardIsFull():
+            self.playerOneBoard.choice = 'X'
+            self.playAgain()
+        else:
+            #call the receive function
+            self.buttonReceive()
+
+    def buttonReceive(self):
+        #prepare to receive a move
+        self.turnLabel.configure(text="Waiting for the other player to make a move.")
+        self.master.update()
+        move = self.clientSocket.recv(1024).decode()
+        #update the PlayerTwo board to reflect the move from PlayerOne
+        self.playerOneBoard.updateGameBoard(move, 'O')
+        rowReceive = int(move[0])
+        colReceive = int(move[1])
+        #finding button
+        button_tuple = (rowReceive, colReceive)
+        position = self.buttonIndex(button_tuple)
+        #insert 'O' on Tic Tac Toe board and disabe button
+        position.configure(text="O", state="disabled")
+        self.master.update()
+        #check is there is a winner before making a move
+        #check if the board is full before making a move
+        self.playerOneBoard.choice = 'X'
+        self.playAgain()
+        self.turnLabel.configure(text="Your turn, make a move.")
+        self.master.update()
+    
+    def playAgain(self):
+        """If the game is already won or the board is full,
+            - create a pop-up message that asks if PlayerOne wants to play again
+                - if yes, send a message to PlayerTwo to let them know that a new game will start and reset PlayerOne board
+                - if no, send a goodbye message to PlayerTwo and display the game statistics
+        """
+        
+        if self.playerOneBoard.isWinner() or self.playerOneBoard.boardIsFull():
+            self.playAgainPopUp = tk.messagebox.askquestion("Game Over", "Would you like to play again?")
+            #if 'yes' button is pressed, send that info to player2 and reset the board
+            if self.playAgainPopUp == 'yes':
+                self.clientSocket.send(b'yes')
+                #reset self.board and UI buttons
+                self.playerOneBoard.resetGameBoard()
+                for i in range(9):
+                    self.buttonList[i].configure(text="", state="normal")
+                self.turnLabel.configure(text="Your turn, make a move.")
+                self.master.update()
+            elif self.playAgainPopUp == 'no':
+                self.clientSocket.send(b'no')
+                self.gameOverPopUp = tk.messagebox.showinfo("Game Stats", self.EndGameStats())
+                self.master.destroy()
+
+    def EndGameStats(self):
+        stats = 'Your username: ' + self.user_one.get()
+        stats += '\nOpponent\'s username: ' + self.user_two
+        stats += '\nNumber of games played: ' + str(self.playerOneBoard.games)
+        stats += '\nNumber of games won: ' + str(int(self.playerOneBoard.games) - int(self.playerOneBoard.losses))
+        stats += '\nNumber of games lost: ' + str(self.playerOneBoard.losses)
+        stats += '\nNumber of games tied: ' + str(self.playerOneBoard.ties)
+        return stats
+
+    def runUI(self):
+      """A method that starts the UI - event handler."""
+      
+      self.master.mainloop()
+      
+
+if __name__ == '__main__':
+    player_one = PlayerOne()
